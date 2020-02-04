@@ -23,7 +23,7 @@ namespace Otomatik.BlazorBin
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSignalR();
+            services.AddSignalR().AddAzureSignalR();
             services.AddSingleton<WeatherForecastService>();
         }
 
