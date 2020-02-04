@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Otomatik.BlazorBin.Data;
+using Otomatik.BlazorBin.Hubs;
 
 namespace Otomatik.BlazorBin
 {
@@ -28,6 +23,7 @@ namespace Otomatik.BlazorBin
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR();
             services.AddSingleton<WeatherForecastService>();
         }
 
@@ -53,6 +49,7 @@ namespace Otomatik.BlazorBin
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<ChatHub>("/chatHub");
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
