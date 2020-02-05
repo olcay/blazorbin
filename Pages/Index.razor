@@ -1,14 +1,19 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
+@using Otomatik.BlazorBin.Data
+
 @page "/"
+@page "/{BinCode}"
+
+@inject BinService BinService
 @inject NavigationManager NavigationManager
 
 <div>
-    <label for="userInput">User:</label>
+    <label for="userInput">Bin:</label>
     <input id="userInput" @bind="userInput" />
 </div>
-<div class="form-group">
-    <label for="messageInput">Message:</label>
-    <input id="messageInput" @bind="messageInput" />
+<div>
+    <label>Public Url:</label>
+    <a href="@endpoint">@endpoint</a>
 </div>
 <button @onclick="Send" disabled="@(!IsConnected)">Send Message</button>
 
@@ -22,12 +27,25 @@
 </ul>
 
 @code {
+    [Parameter]
+    public string BinCode { get; set; }
+
     HubConnection hubConnection;
     List<string> messages = new List<string>();
     string userInput;
-    string messageInput;
+    string endpoint;
 
     protected override async Task OnInitializedAsync()
+    {
+        userInput = BinCode ?? await BinService.GenerateCode();
+        endpoint = "https://localhost:44317/" + userInput;
+
+        await ConnectHub();
+
+        await hubConnection.SendAsync("AddToGroup", userInput);
+    }
+
+    private async Task ConnectHub()
     {
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub"))
@@ -40,10 +58,13 @@
             StateHasChanged();
         });
 
-        await hubConnection.StartAsync();
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            await hubConnection.StartAsync();
+        }
     }
 
-    Task Send() => hubConnection.SendAsync("SendMessage", userInput, messageInput);
+    Task Send() => hubConnection.SendAsync("SendMessageToGroup", userInput, "messageInput");
 
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
 }
