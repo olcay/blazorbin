@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.Extensions.Primitives
 @using Otomatik.BlazorBin.Data
 
 @page "/"
@@ -52,9 +54,10 @@
             .WithUrl(baseApiUrl + "/api")
             .Build();
 
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<string, string, List<KeyValuePair<string, string>>, string>("ReceiveMessage", 
+            (method, url, headers, body) =>
         {
-            var encodedMsg = user + " says " + message;
+            var encodedMsg = method + " to " + url;
             messages.Add(encodedMsg);
             StateHasChanged();
         });

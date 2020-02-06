@@ -1,5 +1,10 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
@@ -18,22 +23,36 @@ namespace Otomatik.BlazorBin.Function
         }
 
         [FunctionName("bin")]
-        public static Task SendMessage(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> SendMessage(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]
+            HttpRequest req,
             ILogger log,
-            [SignalR(HubName = "component")]IAsyncCollector<SignalRMessage> signalRMessages)
+            [SignalR(HubName = "component")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
             string group = req.Query["group"];
 
             log.LogInformation($"HTTP trigger function processed a request for group {group}.");
 
-            return signalRMessages.AddAsync(
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var headers = req.Headers.Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString())).ToList();
+
+            await signalRMessages.AddAsync(
                 new SignalRMessage
                 {
                     GroupName = group,
                     Target = "ReceiveMessage",
-                    Arguments = new [] { "AzureFunction", "hello!" }
+                    Arguments = new object[]
+                    {
+                        req.Method,
+                        req.GetDisplayUrl(),
+                        headers,
+                        requestBody
+                    }
                 });
+
+            return group != null
+                ? (ActionResult) new OkObjectResult($"{group} received your message")
+                : new BadRequestObjectResult("Please pass a group name on the query string");
         }
 
         [FunctionName("addToGroup")]
