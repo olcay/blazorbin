@@ -1,10 +1,10 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Otomatik.BlazorBin.Data;
-using Otomatik.BlazorBin.Hubs;
 
 namespace Otomatik.BlazorBin
 {
@@ -23,9 +23,11 @@ namespace Otomatik.BlazorBin
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSignalR().AddAzureSignalR();
-            services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<BinService>();
+            services.AddHttpClient<ApiService>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:7071");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,7 +52,6 @@ namespace Otomatik.BlazorBin
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<ChatHub>("/chatHub");
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

@@ -6,16 +6,17 @@
 
 @inject BinService BinService
 @inject NavigationManager NavigationManager
+@inject ApiService ApiService
 
 <div>
-    <label for="userInput">Bin:</label>
-    <input id="userInput" @bind="userInput" />
+    <label for="groupName">Bin:</label>
+    <input id="groupName" @bind="groupName" />
 </div>
 <div>
     <label>Public Url:</label>
     <a href="@endpoint">@endpoint</a>
 </div>
-<button @onclick="Send" disabled="@(!IsConnected)">Send Message</button>
+<button disabled="@(!IsConnected)">Connected</button>
 
 <hr />
 
@@ -32,23 +33,23 @@
 
     HubConnection hubConnection;
     List<string> messages = new List<string>();
-    string userInput;
+    string groupName;
     string endpoint;
+
+    string baseApiUrl = "http://localhost:7071";
 
     protected override async Task OnInitializedAsync()
     {
-        userInput = BinCode ?? await BinService.GenerateCode();
-        endpoint = "https://localhost:44317/" + userInput;
+        groupName = BinCode ?? await BinService.GenerateCode();
+        endpoint = baseApiUrl + "/api/bin?group=" + groupName;
 
         await ConnectHub();
-
-        await hubConnection.SendAsync("AddToGroup", userInput);
     }
 
     private async Task ConnectHub()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/chatHub"))
+            .WithUrl(baseApiUrl + "/api")
             .Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
@@ -61,10 +62,10 @@
         if (hubConnection.State != HubConnectionState.Connected)
         {
             await hubConnection.StartAsync();
+
+            await ApiService.AddToGroup(groupName, hubConnection.ConnectionId);
         }
     }
-
-    Task Send() => hubConnection.SendAsync("SendMessageToGroup", userInput, "messageInput");
 
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
 }
