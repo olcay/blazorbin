@@ -26,7 +26,7 @@ namespace Otomatik.BlazorBin
             services.AddSingleton<BinService>();
             services.AddHttpClient<ApiService>(client =>
             {
-                client.BaseAddress = new Uri("http://localhost:7071");
+                client.BaseAddress = new Uri(Configuration.GetValue<string>("HubFunctionUrl"));
             });
         }
 

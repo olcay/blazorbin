@@ -1,6 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.Extensions.Primitives
+﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Otomatik.BlazorBin.Data
 
 @page "/"
@@ -38,12 +36,15 @@
     string groupName;
     string endpoint;
 
-    string baseApiUrl = "http://localhost:7071";
-
     protected override async Task OnInitializedAsync()
     {
-        groupName = BinCode ?? await BinService.GenerateCode();
-        endpoint = baseApiUrl + "/api/bin?group=" + groupName;
+        if (string.IsNullOrEmpty(BinCode))
+        {
+            groupName = await BinService.GenerateCode();
+            NavigationManager.NavigateTo(groupName);
+        }
+        groupName = BinCode;
+        endpoint = ApiService.GetAddress() + "bin/" + groupName;
 
         await ConnectHub();
     }
@@ -51,13 +52,13 @@
     private async Task ConnectHub()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(baseApiUrl + "/api")
+            .WithUrl(ApiService.GetAddress() + "api")
             .Build();
 
-        hubConnection.On<string, string, List<KeyValuePair<string, string>>, string>("ReceiveMessage", 
-            (method, url, headers, body) =>
+        hubConnection.On<string, List<KeyValuePair<string, string>>, string>("ReceiveMessage",
+            (method, headers, body) =>
         {
-            var encodedMsg = method + " to " + url;
+            var encodedMsg = method + " " + body;
             messages.Add(encodedMsg);
             StateHasChanged();
         });
