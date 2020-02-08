@@ -15,7 +15,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: blazorbin    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Debug/netcoreapp3.1'      # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1'    # set this to the path to your web app project, defaults to the repository root
 
 jobs:
   build-and-deploy:
@@ -23,6 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Build
+      working-directory: ./Otomatik.BlazorBin
+      run: dotnet build --configuration Release
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v1
       with:
