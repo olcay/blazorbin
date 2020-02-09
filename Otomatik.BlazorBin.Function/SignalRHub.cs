@@ -18,7 +18,7 @@ namespace Otomatik.BlazorBin.Function
         public static SignalRConnectionInfo GetSignalRInfo(
             [HttpTrigger(AuthorizationLevel.Anonymous,
                 "post",
-                Route = "api/negotiate")] 
+                Route = null)] 
             HttpRequest req,
             ILogger log,
             [SignalRConnectionInfo(HubName = "component")]
@@ -64,7 +64,7 @@ namespace Otomatik.BlazorBin.Function
         [FunctionName("addToGroup")]
         public static async Task<IActionResult> AddToGroup(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post",
-                Route = "api/addToGroup")]
+                Route = null)]
             HttpRequest req,
             ILogger log,
             [SignalR(HubName = "component")]
