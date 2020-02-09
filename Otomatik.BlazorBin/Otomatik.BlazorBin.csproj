@@ -5,6 +5,7 @@
     <UserSecretsId>56c05ca1-0508-4884-b02d-464b5b81c0f3</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CurrieTechnologies.Razor.Clipboard" Version="1.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.1" />
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.2.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

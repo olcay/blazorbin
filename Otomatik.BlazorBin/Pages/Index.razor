@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Otomatik.BlazorBin.Data
+@using CurrieTechnologies.Razor.Clipboard
 
 @page "/"
 @page "/{BinCode}"
@@ -7,25 +8,48 @@
 @inject BinService BinService
 @inject NavigationManager NavigationManager
 @inject ApiService ApiService
+@inject ClipboardService Clipboard
 
-<div>
-    <label for="groupName">Bin:</label>
-    <input id="groupName" @bind="groupName" />
+<div class="sidebar">
+    <NavMenu Messages="@messages" />
 </div>
-<div>
-    <label>Public Url:</label>
-    <a href="@endpoint">@endpoint</a>
+
+<div class="main">
+    <div class="top-row px-4">
+        <div class="input-group col-md-5">
+            <div class="input-group-prepend">
+                <div class="input-group-text" id="btnBinUrl">
+                    @if (IsConnected)
+                    {
+                        <span class="oi oi-check text-success" aria-hidden="true" title="Connected"></span>
+                    }
+                    else
+                    {
+                        <span class="oi oi-x text-danger" aria-hidden="true" title="Connection failed"></span>
+                    }
+                    Endpoint
+                </div>
+            </div>
+            <input type="text" class="form-control" readonly="readonly" aria-label="Bin endpoint" aria-describedby="btnBinUrl" value="@endpoint">
+        </div>
+        <button type="button" class="btn btn-primary" title="Copy" aria-label="Copy" 
+                @onclick="(async e => await Clipboard.WriteTextAsync(endpoint))">
+        <span class="oi oi-clipboard" aria-hidden="true"></span>
+        </button>
+        <a href="https://github.com/olcay/blazorbin" target="_blank" class="btn btn-dark" title="Github"><span class="oi oi-code" aria-hidden="true"></span></a>
+    </div>
+
+    <div class="content px-4">
+
+        <ul id="messagesList">
+            @foreach (var message in messages)
+            {
+                <li>@message</li>
+            }
+        </ul>
+    </div>
 </div>
-<button disabled="@(!IsConnected)">Connected</button>
 
-<hr />
-
-<ul id="messagesList">
-    @foreach (var message in messages)
-    {
-        <li>@message</li>
-    }
-</ul>
 
 @code {
     [Parameter]
@@ -38,6 +62,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (IsConnected) return;
+
         if (string.IsNullOrEmpty(BinCode))
         {
             groupName = await BinService.GenerateCode();
@@ -52,18 +78,19 @@
     private async Task ConnectHub()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(ApiService.GetAddress() + "api", options => {
+            .WithUrl(ApiService.GetAddress() + "api", options =>
+            {
                 options.Headers["x-functions-key"] = ApiService.GetKey();
             })
             .Build();
 
         hubConnection.On<string, List<KeyValuePair<string, string>>, string>("ReceiveMessage",
             (method, headers, body) =>
-        {
-            var encodedMsg = method + " " + body;
-            messages.Add(encodedMsg);
-            StateHasChanged();
-        });
+            {
+                var encodedMsg = method + " " + body;
+                messages.Add(encodedMsg);
+                StateHasChanged();
+            });
 
         if (hubConnection.State != HubConnectionState.Connected)
         {
@@ -73,5 +100,5 @@
         }
     }
 
-    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
 }

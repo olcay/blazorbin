@@ -1,4 +1,5 @@
 using System;
+using CurrieTechnologies.Razor.Clipboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +31,7 @@ namespace Otomatik.BlazorBin
                 client.BaseAddress = new Uri(Configuration.GetValue<string>("HubFunction:Url"));
                 client.DefaultRequestHeaders.Add("x-functions-key", Configuration.GetValue<string>("HubFunction:Key"));
             });
+            services.AddClipboard();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
