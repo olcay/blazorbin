@@ -28,6 +28,7 @@ namespace Otomatik.BlazorBin
             services.AddHttpClient<ApiService>(client =>
             {
                 client.BaseAddress = new Uri(Configuration.GetValue<string>("HubFunctionUrl"));
+                client.DefaultRequestHeaders.Add("x-functions-key", Configuration.GetValue<string>("HubFunctionKey"));
             });
         }
 

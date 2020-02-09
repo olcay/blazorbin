@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -17,6 +18,11 @@ namespace Otomatik.BlazorBin.Data
         public string GetAddress()
         {
             return _httpClient.BaseAddress.ToString();
+        }
+
+        public string GetKey()
+        {
+            return _httpClient.DefaultRequestHeaders.GetValues("x-functions-key").FirstOrDefault();
         }
 
         public async Task AddToGroup(string groupName, string connectionId)

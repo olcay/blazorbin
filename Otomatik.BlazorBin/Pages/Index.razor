@@ -52,7 +52,9 @@
     private async Task ConnectHub()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(ApiService.GetAddress() + "api")
+            .WithUrl(ApiService.GetAddress() + "api", options => {
+                options.Headers["x-functions-key"] = ApiService.GetKey();
+            })
             .Build();
 
         hubConnection.On<string, List<KeyValuePair<string, string>>, string>("ReceiveMessage",
