@@ -6,7 +6,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: blazorbin
-  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1'
+  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1/linux-x64/publish'
   AZURE_WEBAPP_DIR: './Otomatik.BlazorBin'
   AZURE_FUNCTIONAPP_NAME: bbf
   AZURE_FUNCTIONAPP_DIR: './Otomatik.BlazorBin.Function'
@@ -44,9 +44,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
-    - name: Build
+    - name: Publish
       working-directory: ${{ env.AZURE_WEBAPP_DIR }}
-      run: dotnet build --configuration Release
+      run: dotnet publish -c Release -r linux-x64 --self-contained true
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v1
       with:
