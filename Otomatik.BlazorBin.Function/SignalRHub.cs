@@ -29,7 +29,7 @@ namespace Otomatik.BlazorBin.Function
             return connectionInfo;
         }
 
-        [FunctionName("b")]
+        [FunctionName("bin")]
         public static async Task<IActionResult> SendMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous,
                 "get",
