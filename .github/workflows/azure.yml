@@ -32,16 +32,8 @@ jobs:
       id: fa
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        # If your function app project is not located in your repository's root
-        # Please consider prefixing the project path in this package parameter
         package: '${{ env.AZURE_FUNCTIONAPP_DIR }}/output'
-        # If you want to use publish profile credentials instead of Azure Service Principal
-        # Please uncomment the following line
         publish-profile: ${{ secrets.SCM_CREDENTIALS }}
-
-    #- name: 'use the published functionapp url in upcoming steps'
-    #  run: |
-    #    echo "${{ steps.fa.outputs.app-url }}"
   app-build-and-deploy:
     name: Blazor App Build and Deploy
     needs: [func-build-and-deploy]
@@ -59,5 +51,5 @@ jobs:
       uses: azure/webapps-deploy@v1
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BBIN2 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
