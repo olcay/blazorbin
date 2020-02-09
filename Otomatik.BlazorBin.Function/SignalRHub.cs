@@ -33,13 +33,14 @@ namespace Otomatik.BlazorBin.Function
         public static async Task<IActionResult> SendMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous,
                 "get", "post", "put", "delete", "options", "patch",
-                Route = "bin/{group:alpha}")]
+                Route = null)]
             HttpRequest req,
-            string group,
             ILogger log,
             [SignalR(HubName = "component")] 
             IAsyncCollector<SignalRMessage> signalRMessages)
         {
+            string group = req.Query["group"];
+
             log.LogInformation($"HTTP trigger function processed a request for group {group}.");
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();

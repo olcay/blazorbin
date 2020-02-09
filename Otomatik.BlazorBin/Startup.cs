@@ -23,6 +23,7 @@ namespace Otomatik.BlazorBin
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR().AddAzureSignalR();
             services.AddSingleton<BinService>();
             services.AddHttpClient<ApiService>(client =>
             {
