@@ -29,10 +29,10 @@ namespace Otomatik.BlazorBin.Function
             return connectionInfo;
         }
 
-        [FunctionName("bin")]
+        [FunctionName("b")]
         public static async Task<IActionResult> SendMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous,
-                "get", "post",
+                "get",
                 Route = null)]
             HttpRequest req,
             ILogger log,
@@ -43,8 +43,8 @@ namespace Otomatik.BlazorBin.Function
 
             log.LogInformation($"HTTP trigger function processed a request for group {group}.");
 
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var headers = req.Headers.Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString())).ToList();
+            var requestBody = "requestBody";//await new StreamReader(req.Body).ReadToEndAsync();
+            var headers = new List<KeyValuePair<string, string>>();//req.Headers.Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString())).ToList();
 
             await signalRMessages.AddAsync(
                 new SignalRMessage
