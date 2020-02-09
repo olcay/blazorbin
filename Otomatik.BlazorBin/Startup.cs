@@ -27,8 +27,8 @@ namespace Otomatik.BlazorBin
             services.AddSingleton<BinService>();
             services.AddHttpClient<ApiService>(client =>
             {
-                client.BaseAddress = new Uri(Configuration.GetValue<string>("HubFunctionUrl"));
-                client.DefaultRequestHeaders.Add("x-functions-key", Configuration.GetValue<string>("HubFunctionKey"));
+                client.BaseAddress = new Uri(Configuration.GetValue<string>("HubFunction:Url"));
+                client.DefaultRequestHeaders.Add("x-functions-key", Configuration.GetValue<string>("HubFunction:Key"));
             });
         }
 
