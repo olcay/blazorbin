@@ -33,7 +33,7 @@ namespace Otomatik.BlazorBin.Function
         public static async Task<IActionResult> SendMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous,
                 "get", "post", "put", "delete", "options", "patch",
-                Route = "bin/{group}")]
+                Route = "bin/{group:alpha}")]
             HttpRequest req,
             string group,
             ILogger log,
