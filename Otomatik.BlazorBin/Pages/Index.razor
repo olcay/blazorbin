@@ -44,7 +44,7 @@
             NavigationManager.NavigateTo(groupName);
         }
         groupName = BinCode;
-        endpoint = ApiService.GetAddress() + "api/b/" + groupName;
+        endpoint = ApiService.GetAddress() + groupName;
 
         await ConnectHub();
     }
