@@ -1,21 +1,15 @@
-# This workflow will build and push a node.js application to an Azure Web App on every push to the master branch.
-#
-# To configure this workflow:
-#
-# 1. Set up a secret in your repository named AZURE_WEBAPP_PUBLISH_PROFILE with the value of your Azure publish profile.
-#
-# 2. Change the values for the AZURE_WEBAPP_NAME, AZURE_WEBAPP_PACKAGE_PATH and NODE_VERSION environment variables  (below).
-#
-# For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
-# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+name: Azure
 on:
   push:
     branches:
       - master
 
 env:
-  AZURE_WEBAPP_NAME: blazorbin    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1'    # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_NAME: blazorbin
+  AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1'
+  AZURE_WEBAPP_DIR: './Otomatik.BlazorBin'
+  AZURE_FUNCTIONAPP_NAME: bbf
+  AZURE_FUNCTIONAPP_DIR: './Otomatik.BlazorBin.Function'
 
 jobs:
   func-build-and-deploy:
@@ -30,17 +24,17 @@ jobs:
     - name: Build
       shell: pwsh
       run: |
-        pushd ./Otomatik.BlazorBin.Function
+        pushd ${{ env.AZURE_FUNCTIONAPP_DIR }}
         dotnet build --configuration Release --output ./output
         popd
     - name: 'Run Azure Functions Action'
       uses: Azure/functions-action@v1
       id: fa
       with:
-        app-name: bbf
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         # If your function app project is not located in your repository's root
         # Please consider prefixing the project path in this package parameter
-        package: './Otomatik.BlazorBin.Function/output'
+        package: '${{ env.AZURE_FUNCTIONAPP_DIR }}/output'
         # If you want to use publish profile credentials instead of Azure Service Principal
         # Please uncomment the following line
         publish-profile: ${{ secrets.SCM_CREDENTIALS }}
@@ -59,8 +53,8 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Build
-      working-directory: ./Otomatik.BlazorBin
-      run: dotnet build --configuration Release HubFunctionUrl=${{ steps.fa.outputs.app-url }}
+      working-directory: ${{ env.AZURE_WEBAPP_DIR }}
+      run: dotnet build --configuration Release
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v1
       with:
