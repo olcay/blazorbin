@@ -54,7 +54,7 @@ jobs:
         dotnet-version: 3.1.101
     - name: Build
       working-directory: ${{ env.AZURE_WEBAPP_DIR }}
-      run: dotnet build --configuration Release -r linux-x64 --self-contained true
+      run: dotnet build --configuration Release
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v1
       with:
