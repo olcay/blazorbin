@@ -50,6 +50,7 @@ jobs:
     #    echo "${{ steps.fa.outputs.app-url }}"
   app-build-and-deploy:
     name: Blazor App Build and Deploy
+    needs: [func-build-and-deploy]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
