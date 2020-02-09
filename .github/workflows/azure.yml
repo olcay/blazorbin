@@ -18,8 +18,38 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: './Otomatik.BlazorBin/bin/Release/netcoreapp3.1'    # set this to the path to your web app project, defaults to the repository root
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy
+  func-build-and-deploy:
+    name: Function Build and Deploy
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
+    - name: Build
+      shell: pwsh
+      run: |
+        pushd ./Otomatik.BlazorBin.Function
+        dotnet build --configuration Release --output ./output
+        popd
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: bbf
+        # If your function app project is not located in your repository's root
+        # Please consider prefixing the project path in this package parameter
+        package: './Otomatik.BlazorBin.Function/output'
+        # If you want to use publish profile credentials instead of Azure Service Principal
+        # Please uncomment the following line
+        publish-profile: ${{ secrets.SCM_CREDENTIALS }}
+
+    #- name: 'use the published functionapp url in upcoming steps'
+    #  run: |
+    #    echo "${{ steps.fa.outputs.app-url }}"
+  app-build-and-deploy:
+    name: Blazor App Build and Deploy
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +59,7 @@ jobs:
         dotnet-version: 3.1.101
     - name: Build
       working-directory: ./Otomatik.BlazorBin
-      run: dotnet build --configuration Release
+      run: dotnet build --configuration Release HubFunctionUrl=${{ steps.fa.outputs.app-url }}
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v1
       with:
