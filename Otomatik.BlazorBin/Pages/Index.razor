@@ -12,7 +12,7 @@
 @inject ClipboardService Clipboard
 
 <div class="sidebar">
-    <NavMenu Messages="@messages" SelectedMessage="@selectedMessage" />
+    <NavMenu Requests="@requests" OnClick="@OnNavClick" GroupName="@groupName" />
 </div>
 
 <div class="main">
@@ -33,21 +33,62 @@
             </div>
             <input type="text" class="form-control" readonly="readonly" aria-label="Bin endpoint" aria-describedby="btnBinUrl" value="@endpoint" onfocus="this.select();" onmouseup="return false;">
         </div>
-        <button type="button" class="btn btn-primary" title="Copy" aria-label="Copy" 
+        <button type="button" class="btn btn-primary" title="Copy" aria-label="Copy"
                 @onclick="(async e => await Clipboard.WriteTextAsync(endpoint))">
-        <span class="oi oi-clipboard" aria-hidden="true"></span>
+            <span class="oi oi-clipboard" aria-hidden="true"></span>
         </button>
-        <a href="https://github.com/olcay/blazorbin" target="_blank" class="btn btn-dark" title="Source code"><img src="image/github.svg" alt="Github" aria-hidden="true" role="img"/></a>
+        <a href="https://github.com/olcay/blazorbin" target="_blank" class="btn btn-dark" title="Source code"><img src="image/github.svg" alt="Github" aria-hidden="true" role="img" /></a>
     </div>
 
     <div class="content px-4">
+        @if (selectedMessage != null)
+        {
+            <div class="card">
+                <h5 class="card-header">/@selectedMessage.Method</h5>
+                <div class="card-body">
+                    <table class="table table-hover table-sm">
+                        <tbody>
+                            @foreach (var header in selectedMessage.Headers)
+                            {
 
-        <ul id="messagesList">
-            @if (selectedMessage != null)
-            {
-                <li>Selected message is @selectedMessage.Method with @selectedMessage.Body</li>
-            }
-        </ul>
+                                <tr>
+                                    <th scope="row">@header.Key</th>
+                                    <td>@header.Value</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    @if (!string.IsNullOrEmpty(selectedMessage.Body))
+                    {
+                        <h5 class="card-title">Body</h5>
+                        <p class="card-text">@selectedMessage.Body</p>
+                    }
+                    <footer>on <cite title="Request time">@selectedMessage.ReceivedOn</cite></footer>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="content px-4">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="curl-tab" data-toggle="tab" href="#curl" role="tab" aria-controls="curl" aria-selected="true">cURL</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">C#</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">JavaScript</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body text-white bg-dark">
+                <p class="card-text">> curl -d "{ \"SampleText\" : \"Incoming message.\" }" -H "Content-Type: application/json" @endpoint</p>
+            </div>
+        </div>
+    </div>
+    <div class="content px-4">
     </div>
 </div>
 
@@ -57,7 +98,7 @@
     public string BinCode { get; set; }
 
     HubConnection hubConnection;
-    List<Request> messages = new List<Request>();
+    List<Request> requests = new List<Request>();
     Request selectedMessage;
     string groupName;
     string endpoint;
@@ -93,10 +134,11 @@
                 {
                     Method = method,
                     Body = body,
-                    Headers = headers
+                    Headers = headers,
+                    ReceivedOn = DateTime.Now
                 };
 
-                messages.Add(request);
+                requests.Add(request);
                 StateHasChanged();
             });
 
@@ -106,6 +148,11 @@
 
             await ApiService.AddToGroup(groupName, hubConnection.ConnectionId);
         }
+    }
+
+    private void OnNavClick(Request request)
+    {
+        selectedMessage = request;
     }
 
     public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;

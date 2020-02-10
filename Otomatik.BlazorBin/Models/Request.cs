@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Otomatik.BlazorBin.Models
 {
@@ -11,5 +12,7 @@ namespace Otomatik.BlazorBin.Models
         public List<KeyValuePair<string, string>> Headers { get; set; }
 
         public bool IsOpened { get; set; }
+
+        public DateTime ReceivedOn { get; set; }
     }
 }

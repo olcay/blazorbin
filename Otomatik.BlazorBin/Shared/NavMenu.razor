@@ -1,4 +1,5 @@
-﻿@using Otomatik.BlazorBin.Models
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Otomatik.BlazorBin.Models
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">BlazorBin</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -8,28 +9,43 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        @foreach (var message in Messages)
+        @if (Requests == null || Requests.Count() == 0)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="/#" @onclick="() => { OnClick(message); }">
-                    <span class="oi oi-envelope-closed" aria-hidden="true"></span>  @message.Method
+                <NavLink class="nav-link" href="">
+                    <div class="spinner-grow" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div> Waiting for a request...
                 </NavLink>
             </li>
+        }
+        else
+        {
+            for (var i = 0; i < Requests.Count(); i++)
+            {
+                Request request = Requests[i];
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="@(GroupName + "#" + i)" @onclick="async () => { await SelectRequest(request); }">
+                        <span class="oi @(request.IsOpened ? "oi-envelope-open" : "oi-envelope-closed") " aria-hidden="true"></span> @request.Method
+                    </NavLink>
+                </li>
+            }
         }
     </ul>
 </div>
 
 @code {
     [Parameter]
-    public List<Request> Messages { get; set; }
+    public List<Request> Requests { get; set; }
 
     [Parameter]
     public Request SelectedMessage { get; set; }
+
+    [Parameter]
+    public string GroupName { get; set; }
+
+    [Parameter]
+    public EventCallback<Request> OnClick { get; set; }
 
     private bool collapseNavMenu = true;
 
@@ -40,9 +56,12 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    void OnClick(Request message)
+    async Task SelectRequest(Request request)
     {
-        SelectedMessage = message;
-        //TODO: Trigger parent component
+        request.IsOpened = true;
+
+        SelectedMessage = request;
+
+        await OnClick.InvokeAsync(request);
     }
 }

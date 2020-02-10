@@ -24,6 +24,10 @@ namespace Otomatik.BlazorBin
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR().AddAzureSignalR(options =>
+            {
+                options.ServerStickyMode = Microsoft.Azure.SignalR.ServerStickyMode.Required;
+            });
             services.AddSingleton<BinService>();
             services.AddHttpClient<ApiService>(client =>
             {
