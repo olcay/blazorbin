@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Otomatik.BlazorBin.Data
 @using CurrieTechnologies.Razor.Clipboard
+@using Otomatik.BlazorBin.Models
 
 @page "/"
 @page "/{BinCode}"
@@ -11,7 +12,7 @@
 @inject ClipboardService Clipboard
 
 <div class="sidebar">
-    <NavMenu Messages="@messages" />
+    <NavMenu Messages="@messages" SelectedMessage="@selectedMessage" />
 </div>
 
 <div class="main">
@@ -30,21 +31,21 @@
                     Endpoint
                 </div>
             </div>
-            <input type="text" class="form-control" readonly="readonly" aria-label="Bin endpoint" aria-describedby="btnBinUrl" value="@endpoint">
+            <input type="text" class="form-control" readonly="readonly" aria-label="Bin endpoint" aria-describedby="btnBinUrl" value="@endpoint" onfocus="this.select();" onmouseup="return false;">
         </div>
         <button type="button" class="btn btn-primary" title="Copy" aria-label="Copy" 
                 @onclick="(async e => await Clipboard.WriteTextAsync(endpoint))">
         <span class="oi oi-clipboard" aria-hidden="true"></span>
         </button>
-        <a href="https://github.com/olcay/blazorbin" target="_blank" class="btn btn-dark" title="Github"><span class="oi oi-code" aria-hidden="true"></span></a>
+        <a href="https://github.com/olcay/blazorbin" target="_blank" class="btn btn-dark" title="Source code"><img src="image/github.svg" alt="Github" aria-hidden="true" role="img"/></a>
     </div>
 
     <div class="content px-4">
 
         <ul id="messagesList">
-            @foreach (var message in messages)
+            @if (selectedMessage != null)
             {
-                <li>@message</li>
+                <li>Selected message is @selectedMessage.Method with @selectedMessage.Body</li>
             }
         </ul>
     </div>
@@ -56,7 +57,8 @@
     public string BinCode { get; set; }
 
     HubConnection hubConnection;
-    List<string> messages = new List<string>();
+    List<Request> messages = new List<Request>();
+    Request selectedMessage;
     string groupName;
     string endpoint;
 
@@ -87,8 +89,14 @@
         hubConnection.On<string, List<KeyValuePair<string, string>>, string>("ReceiveMessage",
             (method, headers, body) =>
             {
-                var encodedMsg = method + " " + body;
-                messages.Add(encodedMsg);
+                var request = new Request()
+                {
+                    Method = method,
+                    Body = body,
+                    Headers = headers
+                };
+
+                messages.Add(request);
                 StateHasChanged();
             });
 

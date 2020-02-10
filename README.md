@@ -1,4 +1,4 @@
-# BlazorBin
+# BlazorBin ![Azure](https://github.com/olcay/blazorbin/workflows/Azure/badge.svg)
 
 A request bin made with Server-side Blazor, Azure Functions and Azure SignalR Service.
 
@@ -78,7 +78,7 @@ dotnet run
 
 ## Continuous Deployment
 
-We are using [Github Actions](https://github.com/olcay/blazorbin/blob/master/.github/workflows/azure.yml) to deploy the projects to Azure.
+We are using [Github Actions](https://github.com/olcay/blazorbin/actions) to deploy the projects to Azure.
 
 1. [Deploy Server-side Blazor app to Azure.](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4349/Deploying-A-Server-Side-Blazor-Application-To-Azure.aspx) You can use the Visual Studio Publish tool for the first time to create resources. Do not forget to set __Web sockets__ and __ARR affinity__ on in the app service configuration.
 2. [Publish your function to Azure](https://tutorials.visualstudio.com/first-azure-function/publish) and copy your function base URL.
