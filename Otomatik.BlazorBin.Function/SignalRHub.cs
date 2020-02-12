@@ -43,7 +43,17 @@ namespace Otomatik.BlazorBin.Function
             log.LogInformation($"HTTP trigger function processed a request for group {group}.");
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var headers = req.Headers.Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString())).ToList();
+
+            var dangerousHeaders = new List<string>()
+            {
+                "Max-Forwards", "X-WAWS-Unencoded-URL", "CLIENT-IP", "X-ARR-LOG-ID", "DISGUISED-HOST",
+                "X-SITE-DEPLOYMENT-ID", "WAS-DEFAULT-HOSTNAME", "X-Original-URL", "X-ARR-SSL", "X-AppService-Proto"
+            };
+
+            var headers = req.Headers
+                .Where(h => !dangerousHeaders.Contains(h.Key))
+                .Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString()))
+                .ToList();
 
             await signalRMessages.AddAsync(
                 new SignalRMessage
@@ -58,7 +68,7 @@ namespace Otomatik.BlazorBin.Function
                     }
                 });
 
-            return new OkObjectResult($"{group} received your message");
+            return new OkObjectResult("{\"success\":true}");
         }
 
         [FunctionName("addToGroup")]
@@ -85,7 +95,7 @@ namespace Otomatik.BlazorBin.Function
                     Action = GroupAction.Add
                 });
 
-            return new OkObjectResult($"You are added to the {groupName}");
+            return new OkObjectResult("{\"success\":true}");
         }
     }
 }

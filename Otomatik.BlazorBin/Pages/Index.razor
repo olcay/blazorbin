@@ -43,10 +43,10 @@
     <div class="content px-4">
         @if (selectedMessage != null)
         {
-            <div class="card">
-                <h5 class="card-header">/@selectedMessage.Method</h5>
-                <div class="card-body">
-                    <table class="table table-hover table-sm">
+            <BSCard>
+                <BSCard CardType="CardType.Header" HeadingSize="HeadingSize.H3">HTTP Request: @selectedMessage.Method <small title="Request time">on @selectedMessage.ReceivedOn</small></BSCard>
+                <BSCard CardType="CardType.Body">
+                    <BSTable IsHovarable="true" IsSmall="true">
                         <tbody>
                             @foreach (var header in selectedMessage.Headers)
                             {
@@ -57,36 +57,87 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </BSTable>
                     @if (!string.IsNullOrEmpty(selectedMessage.Body))
                     {
-                        <h5 class="card-title">Body</h5>
-                        <p class="card-text">@selectedMessage.Body</p>
+                        <BSCard CardType="CardType.Title">Body</BSCard>
+                        <BSCard CardType="CardType.Text">@selectedMessage.Body</BSCard>
                     }
-                    <footer>on <cite title="Request time">@selectedMessage.ReceivedOn</cite></footer>
-                </div>
-            </div>
+                </BSCard>
+            </BSCard>
         }
     </div>
     <div class="content px-4">
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="curl-tab" data-toggle="tab" href="#curl" role="tab" aria-controls="curl" aria-selected="true">cURL</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">C#</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">JavaScript</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body text-white bg-dark">
-                <p class="card-text">> curl -d "{ \"SampleText\" : \"Incoming message.\" }" -H "Content-Type: application/json" @endpoint</p>
-            </div>
-        </div>
+        <BSTabGroup>
+            <BSCard>
+                <BSCard CardType="CardType.Header" style="padding: .75rem 0 0 0; border-bottom: 0">
+                    <BSTabList style="padding-left: .75rem;">
+                        <BSTab>
+                            <BSTabLabel>cURL</BSTabLabel>
+                            <BSTabContent>
+                                curl -d <code>"{ \"sampleText\" : \"Incoming message.\" }"</code> -H "Content-Type: application/json" <code>@endpoint</code>
+                            </BSTabContent>
+                        </BSTab>
+                        <BSTab>
+                            <BSTabLabel>.NET</BSTabLabel>
+                            <BSTabContent>
+                                var json = JsonConvert.SerializeObject(<code>new { sampleText = "Incoming message." }</code>);<br />
+                                var data = new StringContent(json, Encoding.UTF8, "application/json");<br /><br />
+
+                                using var client = new HttpClient();<br />
+                                var response = await client.PostAsync(<code>"@endpoint"</code>, data);<br />
+
+                                string result = response.Content.ReadAsStringAsync().Result;<br />
+                                Console.WriteLine(result);
+                            </BSTabContent>
+                        </BSTab>
+                        <BSTab>
+                            <BSTabLabel>JavaScript</BSTabLabel>
+                            <BSTabContent>
+                                var myHeaders = new Headers();<br />
+                                myHeaders.append("Content-Type", "application/json");<br /><br />
+
+                                var raw = JSON.stringify(<code>{"sampleText":"Incoming message."}</code>);<br /><br />
+
+                                var requestOptions = { method: 'POST', headers: myHeaders, body: raw, redirect: 'follow'};<br /><br />
+
+                                fetch(<code>"@endpoint"</code>, requestOptions)<br />
+                                .then(response => response.text())<br />
+                                .then(result => console.log(result))<br />
+                                .catch(error => console.log('error', error));
+                            </BSTabContent>
+                        </BSTab>
+                        <BSTab>
+                            <BSTabLabel>Python</BSTabLabel>
+                            <BSTabContent>
+                                import http.client<br />
+                                import mimetypes<br /><br />
+
+                                conn = http.client.HTTPSConnection(<code>"@ApiService.GetAddress()"</code>)<br />
+                                payload = <code>"{ \"sampleText\" : \"Incoming message.\" }"</code><br />
+                                headers = { 'Content-Type': 'application/json' }<br />
+                                conn.request("POST", <code>"/@groupName"</code>, payload, headers)<br />
+                                res = conn.getresponse()<br />
+                                data = res.read()<br />
+                                print(data.decode("utf-8"))
+                            </BSTabContent>
+                        </BSTab>
+                    </BSTabList>
+                </BSCard>
+                <BSCard CardType="CardType.Body">
+                    <BSCard CardType="CardType.Text">
+                        Send a request to this endpoint and you will see the details of it immediately here.<br /><br />
+                        You may use sample HTTP request codes for your preferred programming language.
+                    </BSCard>
+                    <BSCard Color="Color.Dark" class="code-card">
+                        <BSCard CardType="CardType.Body">
+                            <BSTabSelectedContent></BSTabSelectedContent>
+                        </BSCard>
+                    </BSCard>
+
+                </BSCard>
+            </BSCard>
+        </BSTabGroup>
     </div>
     <div class="content px-4">
     </div>
@@ -132,13 +183,22 @@
             {
                 var request = new Request()
                 {
+                    Id = Guid.NewGuid(),
                     Method = method,
                     Body = body,
                     Headers = headers,
                     ReceivedOn = DateTime.Now
                 };
 
-                requests.Add(request);
+                requests.Insert(0, request);
+
+                const int requestsLimit = 30;
+
+                if (requests.Count > requestsLimit)
+                {
+                    requests.RemoveAt(requestsLimit);
+                }
+
                 StateHasChanged();
             });
 

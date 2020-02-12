@@ -9,7 +9,7 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        @if (Requests == null || Requests.Count() == 0)
+        @if (Requests == null || !Requests.Any())
         {
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="">
@@ -21,11 +21,10 @@
         }
         else
         {
-            for (var i = 0; i < Requests.Count(); i++)
+            foreach (var request in Requests)
             {
-                Request request = Requests[i];
-                <li class="nav-item px-3">
-                    <NavLink class="nav-link" href="@(GroupName + "#" + i)" @onclick="async () => { await SelectRequest(request); }">
+                <li class="nav-item px-3 @(request.IsOpened ? "" : "font-weight-bold")">
+                    <NavLink class="nav-link" href="@(GroupName + "#" + request.Id)" @onclick="async () => { await SelectRequest(request); }">
                         <span class="oi @(request.IsOpened ? "oi-envelope-open" : "oi-envelope-closed") " aria-hidden="true"></span> @request.Method
                     </NavLink>
                 </li>
