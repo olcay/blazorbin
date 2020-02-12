@@ -44,7 +44,7 @@
         @if (selectedMessage != null)
         {
             <BSCard>
-                <BSCard CardType="CardType.Header" HeadingSize="HeadingSize.H3">HTTP Request: @selectedMessage.Method <small title="Request time">on @selectedMessage.ReceivedOn</small></BSCard>
+                <BSCard CardType="CardType.Header" HeadingSize="HeadingSize.H4">HTTP Request: @selectedMessage.Method <small title="Request time" style="float: right;">@selectedMessage.ReceivedOn</small></BSCard>
                 <BSCard CardType="CardType.Body">
                     <BSTable IsHovarable="true" IsSmall="true">
                         <tbody>
