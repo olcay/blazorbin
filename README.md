@@ -10,7 +10,9 @@ A request bin made with Server-side Blazor, Azure Functions and Azure SignalR Se
 
 ## Solution structure
 
-This solution consists of a Blazor app and an [Azure Function](https://olcay.dev/2020/01/14/azure-functions/) app. It needs two Azure SignalR services to work. One of the SignalR services is for the Azure Function, to deliver incoming requests to Blazor client app. The other one is for the Server-side Blazor to comunicate with the client-side. We cannot use the same service for both of them because they are using different service modes like Serverless or Default.
+This solution consists of a Blazor app and an [Azure Function](https://olcay.dev/2020/01/14/azure-functions/) app. It needs two Azure SignalR services to work. One of the SignalR services is for the Azure Function, to deliver incoming requests to Blazor client app. The other one is for the Server-side Blazor to comunicate with the client-side. We cannot use the same service for both of them because they are using different service modes like [Serverless and Default](https://github.com/Azure/azure-signalr/blob/dev/docs/faq.md#what-is-the-meaning-of-service-mode-defaultserverlessclassic-how-can-i-choose).
+
+![Solution structure](images/solution_structure.png)
 
 ## Run solution on local
 
