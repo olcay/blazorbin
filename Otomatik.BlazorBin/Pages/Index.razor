@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using Otomatik.BlazorBin.Data
 @using CurrieTechnologies.Razor.Clipboard
-@using Otomatik.BlazorBin.Models
+@using Otomatik.BlazorBin.Common
 
 @page "/"
 @page "/{BinCode}"
@@ -44,9 +44,14 @@
         @if (selectedMessage != null)
         {
             <BSCard>
-                <BSCard CardType="CardType.Header" HeadingSize="HeadingSize.H4">HTTP Request: @selectedMessage.Method <small title="Request time" style="float: right;">@selectedMessage.ReceivedOn</small></BSCard>
+                <BSCard CardType="CardType.Header" HeadingSize="HeadingSize.H4">HTTP Request: @selectedMessage.Method <small title="Request time" style="float: right;">@selectedMessage.ReceivedOn.ToLocalTime()</small></BSCard>
                 <BSCard CardType="CardType.Body">
                     <BSTable IsHovarable="true" IsSmall="true">
+                        <thead>
+                            <tr>
+                                <th scope="col" colspan="2">Headers</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             @foreach (var header in selectedMessage.Headers)
                             {
@@ -58,6 +63,32 @@
                             }
                         </tbody>
                     </BSTable>
+                    @if (!string.IsNullOrEmpty(selectedMessage.QueryString))
+                    {
+                        <BSTable IsHovarable="true" IsSmall="true">
+                            <thead>
+                            <tr>
+                                <th scope="col" colspan="2">Queries</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var query in selectedMessage.QueryString.Split("&"))
+                            {
+                                var key = query;
+                                var value = "";
+                                if (query.Contains("="))
+                                {
+                                    key = query.Split("=")[0];
+                                    value = query.Split("=")[1];
+                                }
+                                <tr>
+                                    <th scope="row">@key</th>
+                                    <td>@value</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </BSTable>
+                    }
                     @if (!string.IsNullOrEmpty(selectedMessage.Body))
                     {
                         <BSCard CardType="CardType.Title">Body</BSCard>
@@ -178,17 +209,14 @@
             })
             .Build();
 
-        hubConnection.On<string, List<KeyValuePair<string, string>>, string>("ReceiveMessage",
-            (method, headers, body) =>
+        hubConnection.On<Request>("ReceiveMessage",
+            (request) =>
             {
-                var request = new Request()
+                request.Id = Guid.NewGuid();
+                if (!string.IsNullOrEmpty(request.QueryString) && request.QueryString.Length > 0)
                 {
-                    Id = Guid.NewGuid(),
-                    Method = method,
-                    Body = body,
-                    Headers = headers,
-                    ReceivedOn = DateTime.Now
-                };
+                    request.QueryString = request.QueryString.Substring(1);
+                }
 
                 requests.Insert(0, request);
 

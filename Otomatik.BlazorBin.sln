@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otomatik.BlazorBin", "Otoma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Otomatik.BlazorBin.Function", "Otomatik.BlazorBin.Function\Otomatik.BlazorBin.Function.csproj", "{E2062461-FB31-4C2F-8C4C-BD9BF746CC3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Otomatik.BlazorBin.Common", "Otomatik.BlazorBin.Common\Otomatik.BlazorBin.Common.csproj", "{D9E68EA6-3DCF-47B8-B7B4-34483432465A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E2062461-FB31-4C2F-8C4C-BD9BF746CC3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2062461-FB31-4C2F-8C4C-BD9BF746CC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2062461-FB31-4C2F-8C4C-BD9BF746CC3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9E68EA6-3DCF-47B8-B7B4-34483432465A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9E68EA6-3DCF-47B8-B7B4-34483432465A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9E68EA6-3DCF-47B8-B7B4-34483432465A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9E68EA6-3DCF-47B8-B7B4-34483432465A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

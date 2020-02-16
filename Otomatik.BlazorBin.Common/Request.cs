@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Otomatik.BlazorBin.Models
+namespace Otomatik.BlazorBin.Common
 {
     public class Request
     {
@@ -10,6 +10,8 @@ namespace Otomatik.BlazorBin.Models
         public string Method { get; set; }
 
         public string Body { get; set; }
+
+        public string QueryString { get; set; }
 
         public List<KeyValuePair<string, string>> Headers { get; set; }
 

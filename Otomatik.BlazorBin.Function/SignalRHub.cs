@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Otomatik.BlazorBin.Common;
 
 namespace Otomatik.BlazorBin.Function
 {
@@ -18,7 +21,7 @@ namespace Otomatik.BlazorBin.Function
         public static SignalRConnectionInfo GetSignalRInfo(
             [HttpTrigger(AuthorizationLevel.Admin,
                 "post",
-                Route = "api/negotiate")] 
+                Route = "api/negotiate")]
             HttpRequest req,
             ILogger log,
             [SignalRConnectionInfo(HubName = "component")]
@@ -37,14 +40,14 @@ namespace Otomatik.BlazorBin.Function
             HttpRequest req,
             string group,
             ILogger log,
-            [SignalR(HubName = "component")] 
-            IAsyncCollector<SignalRMessage> signalRMessages)
+            [SignalR(HubName = "component")] IAsyncCollector<SignalRMessage> signalRMessages,
+            CancellationToken cancellationToken)
         {
             log.LogInformation($"HTTP trigger function processed a request for group {group}.");
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            var dangerousHeaders = new List<string>()
+            var dangerousHeaders = new List<string>
             {
                 "Max-Forwards", "X-WAWS-Unencoded-URL", "CLIENT-IP", "X-ARR-LOG-ID", "DISGUISED-HOST",
                 "X-SITE-DEPLOYMENT-ID", "WAS-DEFAULT-HOSTNAME", "X-Original-URL", "X-ARR-SSL", "X-AppService-Proto"
@@ -62,11 +65,16 @@ namespace Otomatik.BlazorBin.Function
                     Target = "ReceiveMessage",
                     Arguments = new object[]
                     {
-                        req.Method,
-                        headers,
-                        requestBody
+                        new Request
+                        {
+                            Method = req.Method,
+                            Headers = headers,
+                            Body = requestBody,
+                            ReceivedOn = DateTime.UtcNow,
+                            QueryString = req.QueryString.Value
+                        }
                     }
-                });
+                }, cancellationToken);
 
             return new OkObjectResult("{\"success\":true}");
         }
@@ -86,7 +94,7 @@ namespace Otomatik.BlazorBin.Function
             string connectionId = data?.ConnectionId;
 
             log.LogInformation($"HTTP trigger function processed a request to add to a group {groupName}.");
-            
+
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
                 {
