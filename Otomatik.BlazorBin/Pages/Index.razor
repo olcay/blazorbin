@@ -145,7 +145,7 @@
                                 import mimetypes<br /><br />
 
                                 conn = http.client.HTTPSConnection(<code>"@ApiService.GetAddress()"</code>)<br />
-                                payload = <code>"{ \"sampleText\" : \"Incoming message.\" }"</code><br />
+                                payload = <code>"{ \"sampleText\" : \"Incoming message\" }"</code><br />
                                 headers = { 'Content-Type': 'application/json' }<br />
                                 conn.request("POST", <code>"/@groupName"</code>, payload, headers)<br />
                                 res = conn.getresponse()<br />
